@@ -115,8 +115,8 @@ class ArucoNode(rclpy.node.Node):
         else:
             markers.header.frame_id = self.camera_frame
             pose_array.header.frame_id = self.camera_frame
-            
-            
+
+
         markers.header.stamp = img_msg.header.stamp
         pose_array.header.stamp = img_msg.header.stamp
 
@@ -124,11 +124,19 @@ class ArucoNode(rclpy.node.Node):
                                                                 self.aruco_dictionary,
                                                                 parameters=self.aruco_parameters)
         if marker_ids is not None:
+            self.get_logger().info("-------".format())
+            self.get_logger().info("Corners {}".format(corners))
+            self.get_logger().info("Marker IDs {}".format(marker_ids))
+            self.get_logger().info("Marker size {}".format(self.marker_size))
+            self.get_logger().info("Intrinsic matrix {}".format(self.intrinsic_mat))
+            self.get_logger().info("Distortion {}".format(self.distortion))
 
             if cv2.__version__ > '4.0.0':
                 rvecs, tvecs, _ = cv2.aruco.estimatePoseSingleMarkers(corners,
                                                                       self.marker_size, self.intrinsic_mat,
                                                                       self.distortion)
+                self.get_logger().info("CV2.v{} rvecs {}".format(cv2.__version__, rvecs))
+                self.get_logger().info("CV2.v{} tvecs {}".format(cv2.__version__, tvecs))
             else:
                 rvecs, tvecs = cv2.aruco.estimatePoseSingleMarkers(corners,
                                                                    self.marker_size, self.intrinsic_mat,
@@ -159,6 +167,7 @@ class ArucoNode(rclpy.node.Node):
 def main():
     rclpy.init()
     node = ArucoNode()
+    node.get_logger().info("Starting aruco node")
     rclpy.spin(node)
 
     node.destroy_node()
